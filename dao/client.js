@@ -31,8 +31,13 @@ class Client extends Events{
         eventParser=new EventParser(this.config);
     }
 }
-
-function emit(type,data){
+/**
+ *
+ * @param {string} type
+ * @param {string} data
+ * @param {function} callback - Optional. Callback parameter will be executed when the data is finally written out, which may not be immediately.
+ */
+function emit(type,data, callback){
     this.log('dispatching event to ', this.id, this.path, ' : ', type, ',', data);
 
     let message=new Message;
@@ -46,7 +51,10 @@ function emit(type,data){
     }
 
     if(!this.config.sync){
-        this.socket.write(message);
+        this.socket.write(message, function () {
+            callback && callback();
+        });
+
         return;
     }
 
